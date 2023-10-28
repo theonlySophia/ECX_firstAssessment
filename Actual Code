@@ -1,0 +1,58 @@
+const express = require('express');
+const app = express();
+app.use(express.json());
+
+
+let books = [
+  { id: 1, title: 'Book 1' },
+  { id: 2, title: 'Book 2' },
+];
+
+// Read all books
+app.get('/books', (req, res) => {
+  res.json(books);
+});
+
+// Read a single book by ID
+app.get('/books/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const book = books.find((b) => b.id === id);
+  if (!book) {
+    res.status(404).json({ message: 'Book not found' });
+  } else {
+    res.json(book);
+  }
+});
+
+// Create a new book
+app.post('/books', (req, res) => {
+  const newBook = req.body;
+  newBook.id = books.length + 1;
+  books.push(newBook);
+  res.status(201).json(newBook);
+});
+
+// Update a book by ID
+app.put('/books/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const book = books.find((b) => b.id === id);
+  if (!book) {
+    res.status(404).json({ message: 'Book not found' });
+  } else {
+    const updatedBook = req.body;
+    books = books.map((b) => (b.id === id ? { ...b, ...updatedBook, id } : b));
+    res.json(updatedBook);
+  }
+});
+
+// Delete a book by ID
+app.delete('/books/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  books = books.filter((b) => b.id !== id);
+  res.status(204).end();
+});
+
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
